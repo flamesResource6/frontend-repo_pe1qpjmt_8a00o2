@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react'
 
-// A lightweight animated background with floating aurora blobs, parallax stars, and a subtle grid
+// Animated background with aurora, starfield, grid, vignette + scroll parallax
 export default function LiveBackground() {
   const starsRef = useRef(null)
+  const auroraRef = useRef(null)
 
   // Generate tiny star dots once
   useEffect(() => {
@@ -28,28 +29,61 @@ export default function LiveBackground() {
     el.appendChild(frag)
   }, [])
 
+  // Scroll parallax: move layers at different speeds
+  useEffect(() => {
+    const auroraEl = auroraRef.current
+    const starsEl = starsRef.current
+    let ticking = false
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      const y = window.scrollY || document.documentElement.scrollTop || 0
+      requestAnimationFrame(() => {
+        // Aurora: subtle slower movement
+        if (auroraEl) {
+          const amt = y * 0.06 // slower
+          auroraEl.style.transform = `translate3d(0, ${amt}px, 0)`
+        }
+        // Stars: slightly faster for depth
+        if (starsEl) {
+          const amt = y * 0.12 // faster
+          starsEl.style.transform = `translate3d(0, ${amt}px, 0)`
+        }
+        ticking = false
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       {/* Deep space base gradient */}
       <div className="absolute inset-0 bg-[radial-gradient(1200px_800px_at_70%_-10%,rgba(59,130,246,0.18),transparent_60%),radial-gradient(1000px_600px_at_20%_110%,rgba(168,85,247,0.14),transparent_60%),linear-gradient(180deg,#020617,60%,#050816)]" />
 
       {/* Subtle animated grid */}
-      <div className="absolute inset-0 opacity-[0.08]" style={{
-        backgroundImage:
-          'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)',
-        backgroundSize: '60px 60px, 60px 60px',
-        maskImage: 'radial-gradient(70% 60% at 50% 50%, black, transparent)'
-      }} />
+      <div
+        className="absolute inset-0 opacity-[0.08]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px)',
+          backgroundSize: '60px 60px, 60px 60px',
+          maskImage: 'radial-gradient(70% 60% at 50% 50%, black, transparent)',
+        }}
+      />
 
       {/* Aurora blobs */}
-      <div className="absolute -inset-20 blur-3xl" aria-hidden>
+      <div ref={auroraRef} className="absolute -inset-20 blur-3xl will-change-transform" aria-hidden>
         <div className="absolute w-[70vw] h-[70vw] -left-1/3 -top-1/3 rounded-full bg-gradient-to-tr from-blue-600/25 via-cyan-400/20 to-transparent animate-slow-float" />
         <div className="absolute w-[60vw] h-[60vw] -right-1/4 -bottom-1/3 rounded-full bg-gradient-to-tr from-fuchsia-500/20 via-violet-400/20 to-transparent animate-slow-float-reverse" />
         <div className="absolute w-[40vw] h-[40vw] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-emerald-400/20 via-teal-300/20 to-transparent animate-slower-pulse" />
       </div>
 
       {/* Starfield */}
-      <div ref={starsRef} className="absolute inset-0" />
+      <div ref={starsRef} className="absolute inset-0 will-change-transform" />
 
       {/* Vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(255,255,255,0.06),transparent_55%)]" />
