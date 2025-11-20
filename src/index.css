@@ -63,4 +63,8 @@
     0%,100% { opacity: .2; }
     50% { opacity: 1; }
   }
+
+  /* Planes keyframes */
+  @keyframes fly-ltr { from { transform: translateX(-20vw); } to { transform: translateX(120vw); } }
+  @keyframes fly-rtl { from { transform: translateX(120vw); } to { transform: translateX(-20vw); } }
 }

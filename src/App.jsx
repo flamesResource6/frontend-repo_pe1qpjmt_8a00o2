@@ -3,6 +3,7 @@ import Hero from './components/Hero'
 import FlightCard from './components/FlightCard'
 import BookingModal from './components/BookingModal'
 import LiveBackground from './components/LiveBackground'
+import IntroOverlay from './components/IntroOverlay'
 
 function App() {
   const [flights, setFlights] = useState([])
@@ -10,6 +11,7 @@ function App() {
   const [error, setError] = useState('')
   const [selected, setSelected] = useState(null)
   const [message, setMessage] = useState('')
+  const [introDone, setIntroDone] = useState(false)
 
   const API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
 
@@ -60,11 +62,23 @@ function App() {
     fetchFlights({})
   }, [])
 
+  function handleIntroFinish() {
+    setIntroDone(true)
+    setTimeout(() => {
+      const el = document.getElementById('search-anchor')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
   return (
     <div className="relative min-h-screen text-white">
       <LiveBackground />
 
-      <div className="relative max-w-6xl mx-auto px-4">
+      {!introDone && (
+        <IntroOverlay onFinish={handleIntroFinish} />
+      )}
+
+      <div className={`relative max-w-6xl mx-auto px-4 transition-opacity duration-500 ${introDone ? 'opacity-100' : 'opacity-0'} `}>
         <header className="pt-10 pb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-fuchsia-500 shadow-lg shadow-blue-500/30" />
@@ -77,7 +91,9 @@ function App() {
           </div>
         </header>
 
-        <Hero onSearch={fetchFlights} />
+        <div id="search-anchor">
+          <Hero onSearch={fetchFlights} />
+        </div>
 
         {loading && <div className="text-center text-slate-300">Loading...</div>}
         {error && <div className="text-center text-red-400">{error}</div>}
