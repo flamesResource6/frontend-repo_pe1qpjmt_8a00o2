@@ -1,10 +1,13 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
+import useInView from "./useInView";
 
 export default function Hero({ onSearch }) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState("");
+
+  const [ref, inView] = useInView({ threshold: 0.15, rootMargin: "0px 0px -10% 0px" })
 
   function submit(e) {
     e.preventDefault();
@@ -12,7 +15,7 @@ export default function Hero({ onSearch }) {
   }
 
   return (
-    <div className="pt-16 pb-10">
+    <div ref={ref} className={`pt-16 pb-10 transition-all duration-700 ease-out will-change-transform ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
       <h1 className="text-4xl md:text-6xl font-bold text-white text-center tracking-tight">
         Find Empty Leg Flights
       </h1>

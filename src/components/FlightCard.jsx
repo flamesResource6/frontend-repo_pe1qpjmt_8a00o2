@@ -1,6 +1,10 @@
+import useInView from "./useInView";
+
 export default function FlightCard({ flight, onBook }) {
+  const [ref, inView] = useInView({ threshold: 0.12, rootMargin: "0px 0px -8% 0px" })
+
   return (
-    <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 flex flex-col gap-3">
+    <div ref={ref} className={`bg-slate-800/60 border border-slate-700 rounded-2xl p-5 flex flex-col gap-3 transition-all duration-700 ease-out will-change-transform ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
       <div className="flex items-center justify-between">
         <div>
           <div className="text-white font-bold text-lg">{flight.origin} → {flight.destination}</div>
