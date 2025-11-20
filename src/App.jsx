@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Hero from './components/Hero'
 import FlightCard from './components/FlightCard'
 import BookingModal from './components/BookingModal'
+import LiveBackground from './components/LiveBackground'
 
 function App() {
   const [flights, setFlights] = useState([])
@@ -60,10 +61,22 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.08),transparent_50%)]" />
+    <div className="relative min-h-screen text-white">
+      <LiveBackground />
 
       <div className="relative max-w-6xl mx-auto px-4">
+        <header className="pt-10 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-fuchsia-500 shadow-lg shadow-blue-500/30" />
+            <span className="text-xl font-semibold tracking-tight">JetLegs</span>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-sm text-slate-300/80">
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Empty Legs</span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">How it works</span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Contact</span>
+          </div>
+        </header>
+
         <Hero onSearch={fetchFlights} />
 
         {loading && <div className="text-center text-slate-300">Loading...</div>}
@@ -84,6 +97,12 @@ function App() {
           onConfirm={confirmBooking}
         />
       )}
+
+      <footer className="relative border-t border-white/10 mt-6">
+        <div className="max-w-6xl mx-auto px-4 py-8 text-center text-slate-400 text-sm">
+          © {new Date().getFullYear()} JetLegs. All rights reserved.
+        </div>
+      </footer>
     </div>
   )
 }

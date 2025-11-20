@@ -15,6 +15,7 @@
   html {
     font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
+    background: #020617;
   }
 
   body {
@@ -22,7 +23,7 @@
   }
 }
 
-/* Custom utility classes for shadcn/ui patterns */
+/* Custom utility classes */
 @layer utilities {
   .animate-in {
     animation-name: animateIn;
@@ -42,5 +43,24 @@
     --tw-exit-rotate: initial;
     --tw-exit-translate-x: initial;
     --tw-exit-translate-y: initial;
+  }
+
+  @keyframes slow-float {
+    0% { transform: translate3d(0,0,0) scale(1); }
+    50% { transform: translate3d(2%, -2%, 0) scale(1.05); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+  }
+  .animate-slow-float { animation: slow-float 18s ease-in-out infinite; }
+  .animate-slow-float-reverse { animation: slow-float 22s ease-in-out infinite reverse; }
+
+  @keyframes slower-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: .6; }
+    50% { transform: translate(-50%, -50%) scale(1.12); opacity: .9; }
+  }
+  .animate-slower-pulse { animation: slower-pulse 24s ease-in-out infinite; }
+
+  @keyframes twinkle {
+    0%,100% { opacity: .2; }
+    50% { opacity: 1; }
   }
 }
