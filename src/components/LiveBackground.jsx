@@ -1,9 +1,35 @@
 import React, { useEffect, useRef } from 'react'
 
-// Animated background with aurora, starfield, grid, vignette + scroll parallax
+// Animated background with cinematic space video, aurora, starfield, grid, vignette + scroll parallax
 export default function LiveBackground() {
   const starsRef = useRef(null)
   const auroraRef = useRef(null)
+  const videoRef = useRef(null)
+
+  // Respect reduced-motion: pause/disable heavy motion layers
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const vid = videoRef.current
+    if (!vid) return
+
+    // If user prefers reduced motion, pause and hide the video
+    if (prefersReducedMotion) {
+      try {
+        vid.pause()
+      } catch {}
+      vid.style.display = 'none'
+    } else {
+      // Attempt autoplay without sound (required by most browsers)
+      vid.muted = true
+      const play = vid.play()
+      if (play && typeof play.catch === 'function') {
+        play.catch(() => {
+          // If autoplay fails, show controls minimally (still hidden visually)
+          vid.setAttribute('playsinline', '')
+        })
+      }
+    }
+  }, [])
 
   // Generate tiny star dots once
   useEffect(() => {
@@ -61,7 +87,24 @@ export default function LiveBackground() {
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Deep space base gradient */}
+      {/* Cinematic deep-space video layer */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover scale-105 opacity-70 [mix-blend-mode:screen]"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        aria-hidden
+        poster="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop"
+      >
+        {/* Royalty-free space/nebula loops */}
+        <source src="https://cdn.coverr.co/videos/coverr-swirling-cosmos-3843/1080p.mp4" type="video/mp4" />
+        <source src="https://cdn.coverr.co/videos/coverr-swirling-cosmos-3843/1080p.webm" type="video/webm" />
+      </video>
+
+      {/* Deep space base gradient overlay for cohesion */}
       <div className="absolute inset-0 bg-[radial-gradient(1200px_800px_at_70%_-10%,rgba(59,130,246,0.18),transparent_60%),radial-gradient(1000px_600px_at_20%_110%,rgba(168,85,247,0.14),transparent_60%),linear-gradient(180deg,#020617,60%,#050816)]" />
 
       {/* Subtle animated grid */}
