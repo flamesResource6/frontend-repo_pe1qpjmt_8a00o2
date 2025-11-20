@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 
-// Animated background with cinematic space video, aurora, starfield, grid, vignette + scroll parallax
+// Animated background with cinematic rocket liftoff video, aurora, starfield, grid, vignette + scroll parallax
 export default function LiveBackground() {
   const starsRef = useRef(null)
   const auroraRef = useRef(null)
   const videoRef = useRef(null)
+  const dimRef = useRef(null)
 
   // Respect reduced-motion: pause/disable heavy motion layers
   useEffect(() => {
@@ -12,19 +13,15 @@ export default function LiveBackground() {
     const vid = videoRef.current
     if (!vid) return
 
-    // If user prefers reduced motion, pause and hide the video
     if (prefersReducedMotion) {
-      try {
-        vid.pause()
-      } catch {}
+      try { vid.pause() } catch {}
       vid.style.display = 'none'
     } else {
-      // Attempt autoplay without sound (required by most browsers)
       vid.muted = true
+      vid.playsInline = true
       const play = vid.play()
       if (play && typeof play.catch === 'function') {
         play.catch(() => {
-          // If autoplay fails, show controls minimally (still hidden visually)
           vid.setAttribute('playsinline', '')
         })
       }
@@ -55,10 +52,11 @@ export default function LiveBackground() {
     el.appendChild(frag)
   }, [])
 
-  // Scroll parallax: move layers at different speeds
+  // Scroll parallax and dim: move layers + increase dim as you scroll to prioritize content
   useEffect(() => {
     const auroraEl = auroraRef.current
     const starsEl = starsRef.current
+    const dimEl = dimRef.current
     let ticking = false
 
     const onScroll = () => {
@@ -68,13 +66,21 @@ export default function LiveBackground() {
       requestAnimationFrame(() => {
         // Aurora: subtle slower movement
         if (auroraEl) {
-          const amt = y * 0.06 // slower
+          const amt = y * 0.06
           auroraEl.style.transform = `translate3d(0, ${amt}px, 0)`
         }
         // Stars: slightly faster for depth
         if (starsEl) {
-          const amt = y * 0.12 // faster
+          const amt = y * 0.12
           starsEl.style.transform = `translate3d(0, ${amt}px, 0)`
+        }
+        // Dim overlay: from 0.28 to 0.56 between 0-600px scroll
+        if (dimEl) {
+          const base = 0.28
+          const maxExtra = 0.28
+          const factor = Math.max(0, Math.min(1, y / 600))
+          const opacity = base + maxExtra * factor
+          dimEl.style.opacity = String(opacity)
         }
         ticking = false
       })
@@ -87,22 +93,30 @@ export default function LiveBackground() {
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Cinematic deep-space video layer */}
+      {/* Cinematic rocket liftoff video layer (slow-mo aesthetic) */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover scale-105 opacity-70 [mix-blend-mode:screen]"
+        className="absolute inset-0 w-full h-full object-cover scale-110 opacity-80 [mix-blend-mode:screen] will-change-transform"
         autoPlay
         loop
         muted
         playsInline
         preload="metadata"
         aria-hidden
-        poster="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop"
+        poster="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1920&auto=format&fit=crop"
       >
-        {/* Royalty-free space/nebula loops */}
+        {/* Primary attempt: rocket slow-mo liftoff */}
+        <source src="https://cdn.coverr.co/videos/coverr-rocket-launch-2769/1080p.mp4" type="video/mp4" />
+        <source src="https://cdn.coverr.co/videos/coverr-rocket-launch-2769/1080p.webm" type="video/webm" />
+        {/* Alternate source */}
+        <source src="https://videos.pexels.com/video-files/856657/856657-hd_1920_1080_24fps.mp4" type="video/mp4" />
+        {/* Fallback to previous cosmos loop if above fail */}
         <source src="https://cdn.coverr.co/videos/coverr-swirling-cosmos-3843/1080p.mp4" type="video/mp4" />
         <source src="https://cdn.coverr.co/videos/coverr-swirling-cosmos-3843/1080p.webm" type="video/webm" />
       </video>
+
+      {/* Dynamic dim overlay (darkens slightly as you scroll) */}
+      <div ref={dimRef} className="absolute inset-0 bg-black transition-opacity duration-300" style={{ opacity: 0.28 }} />
 
       {/* Deep space base gradient overlay for cohesion */}
       <div className="absolute inset-0 bg-[radial-gradient(1200px_800px_at_70%_-10%,rgba(59,130,246,0.18),transparent_60%),radial-gradient(1000px_600px_at_20%_110%,rgba(168,85,247,0.14),transparent_60%),linear-gradient(180deg,#020617,60%,#050816)]" />
